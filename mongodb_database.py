@@ -67,7 +67,7 @@ class MongoDB:
                 'maxPoolSize': 10,
                 'retryWrites': True,
                 'retryReads': True,
-                'tls': True,
+                'tls': self.connection_uri.startswith('mongodb+srv://'),
                 'tlsInsecure': True  # Bypasses all TLS verification (Windows OpenSSL 3.x workaround)
             }
             
