@@ -682,9 +682,9 @@ def load_model_and_classes():
             class_names = [
                 "Chilli Whitefly",
                 "Chilli Yellowish",
-                "Chilli healthy",
                 "Chilli Anthacnose",
-                "Chilli Leaf Curl Virus"
+                "Chilli Leaf Curl Virus",
+                "Chilli healthy"
             ]
         
         logger.info(f"Loaded {len(class_names)} classes: {class_names}")
@@ -1059,6 +1059,7 @@ Your response:"""
                 logger.warning("❌ All Gemini API keys exhausted - switching to backup methods")
         
         # === TIER 2: Try Local BLIP Model ===
+        return True, "Validation skipped - local disease model will analyze image"
         hf_result = validate_with_huggingface(image_bytes)
         if hf_result is not None:
             logger.info("✅ Local BLIP validation succeeded")

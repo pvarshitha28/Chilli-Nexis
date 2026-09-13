@@ -36,3 +36,10 @@ Thumbs.db
 .env
 # Image assets
 static/images/*.png
+chilli_balanced_cnn.keras
+chilli_mobilenetv2_model.keras
+chilli_balanced_cnn_classes.json
+chilli_mobilenetv2_classes.json
+train_balanced_cnn.py
+train_mobilenet.py
+error_images/

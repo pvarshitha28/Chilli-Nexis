@@ -132,9 +132,10 @@ button {
 }
 
 .logo-image {
-    height: 45px;
-    width: auto;
+    height: 55px;
+    width: 180px;
     object-fit: contain;
+    object-position: left center;
 }
 
 .logo-icon {
@@ -1596,7 +1597,7 @@ button {
 
 .chatbot-avatar {
     width: 45px;
-    height: 45px;
+    height: 30px;
     border-radius: 50%;
     background: rgba(255, 255, 255, 0.2);
     display: flex;
@@ -3413,3 +3414,4 @@ button {
     .page-hero-fade { width: 55%; }
     .page-hero-text h1 { font-size: 1.5rem; }
 }
+
