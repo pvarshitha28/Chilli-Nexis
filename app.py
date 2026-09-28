@@ -598,7 +598,50 @@ def get_plant_prognosis(disease_name, confidence):
         "next_disease_reason": base["next_disease_reason"],
     }
 
+# ============================================================
+# SMS ALERT SYSTEM (Simulated)
+# ============================================================
 
+def send_sms_alert(phone_number, disease_name, confidence):
+    """
+    Simulates sending an SMS alert when a disease is detected.
+    Logs the alert to the database instead of calling an external SMS API.
+    """
+    message = f"ChilliNexis Alert: {disease_name} detected ({confidence}% confidence). Please check your plant and take necessary action."
+
+    sms_record = {
+        "phone_number": phone_number,
+        "message": message,
+        "disease_name": disease_name,
+        "confidence": confidence,
+        "status": "simulated_sent"
+    }
+
+    if mongodb and mongodb.connected:
+        mongodb.save_sms_alert(sms_record)
+
+    logger.info(f"[SIMULATED SMS] To: {phone_number} | {message}")
+
+    return {"success": True, "message": message, "simulated": True}
+
+@app.route('/api/send-sms', methods=['POST'])
+def api_send_sms():
+    """API endpoint to send/simulate an SMS alert"""
+    try:
+        data = request.get_json()
+        phone_number = data.get('phone_number')
+        disease_name = data.get('disease_name')
+        confidence = data.get('confidence', 0)
+
+        if not phone_number or not disease_name:
+            return jsonify({'success': False, 'error': 'phone_number and disease_name are required'}), 400
+
+        result = send_sms_alert(phone_number, disease_name, confidence)
+        return jsonify(result)
+
+    except Exception as e:
+        logger.error(f"SMS route error: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
 def load_model_and_classes():
     """Load the trained model and class names"""
     global model, class_names
@@ -606,6 +649,7 @@ def load_model_and_classes():
     try:
         # Try loading different model formats with compatibility handling
         model_paths = [
+            'chilli_mobilenetv2_model.keras',
             'best_chilli_disease_model.h5',
             'chilli_disease_detection_model_final.h5',
             'chilli_disease_detection_model_final.keras',
@@ -1576,6 +1620,7 @@ def api_predict():
         prognosis = get_plant_prognosis(disease_name, prediction_result['confidence'])
 
         # Prepare response
+               # Prepare response
         response = {
             'success': True,
             'prediction': prediction_result,
@@ -1585,6 +1630,15 @@ def api_predict():
             'model_version': '1.0.0',
             'prediction_id': prediction_id
         }
+
+        # Auto-trigger SMS alert if disease detected (not healthy)
+        predicted_disease = prediction_result.get('predicted_class') if isinstance(prediction_result, dict) else None
+        confidence_value = prediction_result.get('confidence') if isinstance(prediction_result, dict) else None
+        test_phone_number = "9999999999"  # TODO: replace with real user phone (Option A upgrade later)
+
+        if predicted_disease and predicted_disease != "Chilli healthy":
+            sms_result = send_sms_alert(test_phone_number, predicted_disease, confidence_value)
+            response['sms_alert'] = sms_result
         
         return jsonify(response)
     

@@ -262,8 +262,21 @@ class MongoDB:
             return str(result.inserted_id)
         except Exception as e:
             logger.error(f"Error saving prediction: {e}")
+            return None 
+    def save_sms_alert(self, sms_data):
+        """Save an SMS alert record to database"""
+        if not self.connected:
             return None
-    
+        try:
+            if 'timestamp' not in sms_data:
+                sms_data['timestamp'] = datetime.now()
+            result = self.db.sms_alerts.insert_one(sms_data)
+            logger.info(f"✓ Saved SMS alert {result.inserted_id}")
+            return str(result.inserted_id)
+        except Exception as e:
+            logger.error(f"Error saving SMS alert: {e}")
+            return None    
+      
     def get_predictions(self, limit=20, skip=0, disease_filter=None):
         """
         Get predictions with pagination
